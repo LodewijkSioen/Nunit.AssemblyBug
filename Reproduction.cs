@@ -69,7 +69,8 @@ public static class Holder
     public static Guid TestValue = Guid.NewGuid();
 }
 
-public class ValidationEndpoint
+
+public class WolverineHttpEndpoint
 {
 
     [WolverineGet("/wolverine")]
