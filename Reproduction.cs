@@ -12,11 +12,25 @@ public class Reproduction
 
 
     [Test]
-    public async Task Test()
+    public async Task TestWolverine()
     {
         var response = await _host.Scenario(s =>
         {
-            s.Get.Url("/");
+            s.Get.Url("/wolverine");
+            s.StatusCodeShouldBe(200);
+        });
+        var result = await response.ReadAsTextAsync();
+
+        using var scope = Assert.EnterMultipleScope();
+        Assert.That(result, Is.EqualTo($"\"{Holder.TestValue.ToString()}\""));
+    }
+
+    [Test]
+    public async Task TestMinimal()
+    {
+        var response = await _host.Scenario(s =>
+        {
+            s.Get.Url("/minimal");
             s.StatusCodeShouldBe(200);
         });
         var result = await response.ReadAsTextAsync();
@@ -39,6 +53,7 @@ public class Reproduction
         _host = await AlbaHost.For(builder, app =>
         {
             app.MapWolverineEndpoints();
+            app.MapGet("/minimal", () => Results.Ok(Holder.TestValue));
         });
     }
 
@@ -57,7 +72,7 @@ public static class Holder
 public class ValidationEndpoint
 {
 
-    [WolverineGet("/")]
+    [WolverineGet("/wolverine")]
     public IResult Handle()
     {
         return Results.Ok(Holder.TestValue);
