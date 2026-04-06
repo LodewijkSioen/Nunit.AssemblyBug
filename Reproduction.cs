@@ -1,4 +1,6 @@
-﻿using Alba;
+﻿using System.Reflection;
+using System.Runtime.Loader;
+using Alba;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Wolverine;
@@ -8,6 +10,22 @@ namespace Nunit.AssemblyBug;
 
 public class Reproduction
 {
+    // This is the minimal reproduction of the bug. Fails with TestAdapter v6+ when running in Resharper,
+    // but not in `dotnet test`. Runs in both when using TestAdaper v5.2
+    [Test]
+    public void TestAssemblyLoad()
+    {
+        var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(new("Nunit.AssemblyBug"));
+        var type = assembly.GetType("Nunit.AssemblyBug.Holder");
+        Assert.That(type, Is.EqualTo(typeof(Holder)));
+    }
+
+
+
+
+    // the tests below are explortions that brought me to the minimal test
+
+
     private IAlbaHost _host = null!;
 
 
@@ -52,6 +70,7 @@ public class Reproduction
         using var scope = Assert.EnterMultipleScope();
         Assert.That(result, Is.EqualTo($"\"{Holder.TestValue.ToString()}\""));
     }
+
 
     [SetUp]
     public async Task Setup()
